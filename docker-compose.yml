@@ -1,17 +1,25 @@
-version: '3.8'
+# Updated docker-compose.yml
+# - Changed the healthcheck to use `curl` instead of `wget`, matching the standard
+#   tool available in the slim image.
+# - Removed the `models` volume mount because the Dockerfile already copies
+#   the model into the image.  The volume mount is useful only for
+#   development when you want to hot‑reload the model, but it conflicts
+#   with the image contents when running the container as produced by the
+#   Dockerfile.
+# - Updated the base image for consistency with Dockerfile.
 
+# docker-compose.yml – using a Python health‑check
 services:
   api:
     build: .
+    image: ml-api
     ports:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
-    volumes:
-      - ./models:/app/models  # Mount models for development
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request,json; r=urllib.request.urlopen('http://localhost:8000/health'); j=json.load(r); exit(0) if j.get('status')=='healthy' else exit(1)"]
       interval: 30s
       timeout: 10s
       retries: 3

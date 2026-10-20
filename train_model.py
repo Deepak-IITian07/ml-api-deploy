@@ -1,5 +1,7 @@
 import pickle
 import numpy as np
+import os
+os.makedirs('models', exist_ok=True)
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
